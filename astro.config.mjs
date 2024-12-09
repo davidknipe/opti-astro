@@ -10,6 +10,8 @@ import tailwind from "@astrojs/tailwind"; // https://astro.build/config
 
 import pageInsight from "astro-page-insight";
 
+import netlify from "@astrojs/netlify";
+
 // https://astro.build/config
 export default defineConfig({
   image: {
@@ -24,9 +26,7 @@ export default defineConfig({
 
   output: "server",
 
-  adapter: node({
-    mode: "standalone",
-  }),
+  adapter: netlify(),
 
   server: { port: 4321 },
   vite: {

@@ -1,0 +1,46 @@
+---
+import { getOptimizelySdk } from '../services/graphql/getSdk'
+import Components from '../components/cms/OnPageEditing/components/_Components.astro'
+import Experiences from '../components/cms/VisualBuilder/experiences/_Experiences.astro'
+import Pages from '../components/cms/OnPageEditing/pages/_Pages.astro'
+import { ContentPayload } from '../services/shared/ContentPayload'
+import { Locales } from '../services/graphql/__generated/sdk'
+import qs from 'query-string'
+
+const previewPayload = qs.parse(Astro.url.search) as unknown as ContentPayload
+
+const optiResponse = await getOptimizelySdk(previewPayload.ctx).contentById({
+  key: previewPayload.key,
+  loc: previewPayload.loc as unknown as Locales,
+  ver: previewPayload.ver
+})
+const types = optiResponse._Content.items[0]?._metadata?.types
+previewPayload.types = types
+
+const isComponentType = types?.includes('_Component')
+const isExperienceType = types?.includes('_Experience')
+const isPageType = types?.includes('_Page') && isExperienceType === false
+//const {metaTitle, metaDescription} = await getSeoData(isExperienceType, isPageType, previewPayload)
+---
+<>
+
+  {!types &&
+    <h1 class="text-5xl text-center">Welcome to the demo site!</h1>}
+  {isComponentType &&
+    <Components data={previewPayload} />}
+  {isExperienceType &&
+    <Experiences data={previewPayload} />}
+  {isPageType &&
+    <Pages data={previewPayload} />}
+</>
+<script src="/communicationinjector.js" is:inline></script>
+<script>
+  function contentSaved(event: any) {
+    window.location = event.detail.previewUrl
+    //window.location.reload();
+  }
+
+  window.addEventListener('optimizely:cms:contentSaved', (event) =>
+    contentSaved(event)
+  )
+</script>

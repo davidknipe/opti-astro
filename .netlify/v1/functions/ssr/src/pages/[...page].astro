@@ -1,0 +1,42 @@
+---
+import { ContentPayload } from '../services/shared/ContentPayload'
+import Components from '../components/cms/OnPageEditing/components/_Components.astro'
+import Pages from '../components/cms/OnPageEditing/pages/_Pages.astro'
+import Experiences from '../components/cms/VisualBuilder/experiences/_Experiences.astro'
+import { Locales } from '../services/graphql/__generated/sdk'
+import { getOptimizelySdk } from '../services/graphql/getSdk'
+
+const ctx = 'view'
+const urlPath = `${Astro.url.pathname.replace(/\/$/, '')}/`
+const contentByPathResponse = await getOptimizelySdk(ctx).contentByPath({ url: urlPath })
+if (contentByPathResponse._Content.items.length === 0) {
+  return Astro.redirect('/404')
+}
+const item = contentByPathResponse._Content.items[0]
+const contentByIdResponse = await getOptimizelySdk(ctx).contentById({
+  key: item._metadata.key,
+  ver: item._metadata.version,
+  loc: item._metadata.locale as Locales
+})
+
+const contentPayload: ContentPayload = {
+  ctx: ctx,
+  key: item._metadata.key,
+  ver: item._metadata.version,
+  loc: item._metadata.locale as Locales,
+  preview_token: '',
+  types: contentByIdResponse._Content.items[0]._metadata.types
+}
+const isComponentType = contentPayload.types.includes('_Component')
+const isExperienceType = contentPayload.types.includes('_Experience')
+const isPageType = contentPayload.types.includes('_Page') && isExperienceType === false
+//const {metaTitle, metaDescription} = await getSeoData(isExperienceType, isPageType, contentPayload)
+---
+<>
+  {isComponentType &&
+    <Components data={contentPayload} />}
+  {isExperienceType &&
+    <Experiences data={contentPayload} />}
+  {isPageType &&
+    <Pages data={contentPayload} />}
+</>

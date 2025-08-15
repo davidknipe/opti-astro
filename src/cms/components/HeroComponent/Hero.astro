@@ -37,6 +37,7 @@ const globalStyles = getGlobalStyles(displaySettings);
     class="relative flex w-full items-center"
     class:list={[justifyClass, heightClass, globalStyles]}
     data-epi-block-id={isCmsEdit && key || undefined}    
+    data-opti-is-edit={isCmsEdit}    
 >
     {
         hasVideo && videoUrl && (

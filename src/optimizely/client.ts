@@ -41,7 +41,7 @@ export async function createOptimizelyClient(
     const pollingConfigManager = createPollingProjectConfigManager({
         sdkKey: sdkKey,
         autoUpdate: true,
-        updateInterval: 30000, // 30 seconds
+        updateInterval: 3000, // 3 seconds
     });
 
     const batchEventProcessor = createBatchEventProcessor();
